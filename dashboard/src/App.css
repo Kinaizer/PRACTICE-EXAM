@@ -1,0 +1,16 @@
+:root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; }
+body { font-family: sans-serif; background: var(--bg); margin: 0; }
+.navbar { background: white; padding: 10px 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.container { max-width: 700px; margin: 30px auto; padding: 0 20px; }
+.auth-container { display: flex; justify-content: center; align-items: center; height: 90vh; }
+.auth-card, .request-form { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+.btn-primary { background: var(--p); color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; cursor: pointer; }
+.card { background: white; padding: 15px; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+.pending { background: #fef3c7; color: #92400e; }
+.approved { background: #dcfce7; color: #166534; }
+.denied { background: #fee2e2; color: #991b1b; }
+.btn-approve { background: var(--s); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-right: 5px;}
+.btn-deny { background: var(--d); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+.logout-btn { background: #6b7280; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-left: 15px; cursor: pointer;}
