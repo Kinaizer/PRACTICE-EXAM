@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import './StudentForm.css';
 
 const StudentForm = ({ user }) => {
   const [track, setTrack] = useState('STEM');

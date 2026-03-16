@@ -1,0 +1,43 @@
+/* StudentForm.css */
+.container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.request-form {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.request-form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.request-form input, .request-form select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.history-card {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.badge {
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
