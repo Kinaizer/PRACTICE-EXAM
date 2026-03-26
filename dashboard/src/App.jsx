@@ -19,7 +19,7 @@ function App() {
         {user && (
           <nav className="navbar">
             <div className="nav-container">
-              <h1>Campus Connect</h1>
+              <h1>Seait Clearance</h1>
               <div className="nav-links">
                 <span>Hello, {user.fullName}</span>
                 <button onClick={handleLogout} className="logout-btn">Logout</button>
