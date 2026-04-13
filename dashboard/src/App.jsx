@@ -15,13 +15,12 @@ function App() {
 
   return (
     <Router>
-      <div className="app-viewport"> {/* Centralized Wrapper */}
+      <div className="app-viewport"> 
         {user && (
           <nav className="navbar">
             <div className="nav-container">
               <h1>Seait Clearance</h1>
               <div className="nav-links">
-                <span>Hello, {user.fullName}</span>
                 <button onClick={handleLogout} className="logout-btn">Logout</button>
               </div>
             </div>
