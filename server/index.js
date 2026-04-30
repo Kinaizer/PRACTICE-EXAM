@@ -57,14 +57,17 @@ apiRouter.post('/signup', async (req, res) => {
     await user.save();
     res.status(201).json({ message: "Success! Please wait for Admin verification." });
   } catch (err) { 
-    res.status(400).json({ message: "Email already exists or invalid data" }); 
+    res.status(400).json({ message: "ID Number or Email already exists or invalid data" }); 
   }
 });
 
 apiRouter.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email, password });
+    const { loginId, password } = req.body;
+    const user = await User.findOne({ 
+      $or: [{ idNumber: loginId }, { email: loginId }], 
+      password 
+    });
 
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -104,6 +107,58 @@ apiRouter.patch('/users/verify/:id', async (req, res) => {
   }
 });
 
+apiRouter.post('/admin/users', async (req, res) => {
+  try {
+    const user = new User({ ...req.body, isVerified: true });
+    await user.save();
+    res.status(201).json(user);
+  } catch (err) {
+    res.status(400).json({ message: "Failed to create user. Email or ID might exist." });
+  }
+});
+
+apiRouter.get('/users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+apiRouter.patch('/users/:id', async (req, res) => {
+  try {
+    const { fullName, idNumber, email, password, role, isVerified } = req.body;
+    const updateData = {};
+    if (fullName !== undefined) updateData.fullName = fullName;
+    if (idNumber !== undefined) updateData.idNumber = idNumber;
+    if (email !== undefined) updateData.email = email;
+    if (password !== undefined) updateData.password = password;
+    if (role !== undefined) updateData.role = role;
+    if (isVerified !== undefined) updateData.isVerified = isVerified;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: "Update failed" });
+  }
+});
+
+apiRouter.delete('/users/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Deletion failed" });
+  }
+});
+
 // --- REQUESTS ROUTES ---
 apiRouter.post('/requests', async (req, res) => {
   try {
@@ -117,10 +172,32 @@ apiRouter.post('/requests', async (req, res) => {
 
 apiRouter.get('/requests', async (req, res) => {
   try {
-    const requests = await Request.find().sort({ createdAt: -1 });
+    const { status, userId } = req.query;
+    const filter = {};
+    if (status) filter.status = status;
+    if (userId) filter.userId = userId;
+    const requests = await Request.find(filter).sort({ createdAt: -1 });
     res.json(requests);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch requests" });
+  }
+});
+
+apiRouter.patch('/requests/:id', async (req, res) => {
+  try {
+    const { status, comment } = req.body;
+    const updateData = { status };
+    if (comment !== undefined) updateData.comment = comment;
+    
+    const request = await Request.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    res.json(request);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update request" });
   }
 });
 

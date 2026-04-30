@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import seaitLogo from '../assets/seaitlogo.png';
 import './Auth.css';
 
 const Auth = ({ setUser }) => {
@@ -7,9 +8,10 @@ const Auth = ({ setUser }) => {
 
   const [form, setForm] = useState({
     fullName: '',
-    email: '',
+    idNumber: '',
     password: '',
-    role: 'student'
+    role: 'student',
+    organization: 'Engineering'
   });
 
   const handleChange = (e) => {
@@ -27,9 +29,9 @@ const Auth = ({ setUser }) => {
 
       const payload = isLogin
         ? {
-            email: form.email,
-            password: form.password
-          }
+          loginId: form.idNumber,
+          password: form.password
+        }
         : form;
 
       const res = await axios.post(endpoint, payload);
@@ -57,26 +59,39 @@ const Auth = ({ setUser }) => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
+        <img src={seaitLogo} alt="SEAIT Logo" className="auth-logo" />
+        <h2>{isLogin ? 'SEAIT Clearance System' : 'Sign Up'}</h2>
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
-            <input
-              type="text"
-              name="fullName"
-              placeholder="Full Name"
-              required
-              value={form.fullName}
-              onChange={handleChange}
-            />
+            <>
+              <input
+                type="text"
+                name="fullName"
+                placeholder="Full Name"
+                required
+                value={form.fullName}
+                onChange={handleChange}
+              />
+              <select
+                name="organization"
+                value={form.organization}
+                onChange={handleChange}
+                required
+              >
+                <option value="Engineering">Engineering</option>
+                <option value="Architecture">Architecture</option>
+                <option value="Information Technology">Information Technology</option>
+              </select>
+            </>
           )}
 
           <input
-            type="email"
-            name="email"
-            placeholder="Email"
+            type="text"
+            name="idNumber"
+            placeholder={isLogin ? "ID Number or Email" : "ID Number"}
             required
-            value={form.email}
+            value={form.idNumber}
             onChange={handleChange}
           />
 

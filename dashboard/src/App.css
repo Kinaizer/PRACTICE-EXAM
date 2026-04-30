@@ -12,22 +12,48 @@ html, body {
 .app-viewport {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Vertical centering */
+  justify-content: flex-start; /* Allows scrolling from top instead of centering clipping */
   align-items: center;     /* Horizontal centering */
   min-height: 100vh;
-  width: 100vw;
-  background-color: #f8fafc;
+  width: 100%;
+  background: linear-gradient(135deg, var(--color-primary-darkest) 0%, var(--color-primary-dark) 100%);
   box-sizing: border-box;
+  padding: 40px 20px; /* Add top padding to mimic some centering for small views */
 }
 
 /* 3. The Navbar (needs to stay at the top or center) */
 .navbar {
   width: 100%;
   max-width: 800px; /* Limits width so it doesn't touch the edges */
+  margin-bottom: 20px;
+}
+
+.nav-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  background-color: var(--color-primary-darkest);
+  border: 1px solid var(--color-primary);
+  padding: 15px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.nav-container h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: white;
+}
+
+.logout-btn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  font-weight: bold;
+}
+
+.logout-btn:hover {
+  background-color: var(--color-primary-light);
 }
 
 /* 4. The Content Box (The Dashboard/Form) */
@@ -40,11 +66,11 @@ html, body {
 }
 
 /* 5. Force the actual Dashboard Component to center its own text */
-.admin-container, .request-form, .auth-card {
+.admin-container, .request-form, .auth-card, .checker-container, .org-container, .gov-container {
   width: 100%;
   background: white;
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  text-align: center; /* This centers the headings inside the card */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  border-top: 6px solid var(--color-primary);
 }

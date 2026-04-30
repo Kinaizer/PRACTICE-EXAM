@@ -17,6 +17,13 @@
   text-align: center;
 }
 
+.auth-logo {
+  width: 120px;
+  height: auto;
+  margin: 0 auto 1.5rem;
+  display: block;
+}
+
 .auth-card h2 {
   margin-bottom: 1.5rem;
   color: #1e293b;
@@ -28,7 +35,7 @@
   gap: 15px;
 }
 
-.auth-card input {
+.auth-card input, .auth-card select {
   padding: 12px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;

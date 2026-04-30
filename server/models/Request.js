@@ -19,7 +19,11 @@ const RequestSchema = new mongoose.Schema({
   status: { 
     type: String, 
     default: 'Pending',
-    enum: ['Pending', 'Approved', 'Denied']
+    enum: ['Pending', 'Checker Approved', 'Org President Approved', 'Governor Approved', 'Disapproved']
+  },
+  comment: {
+    type: String,
+    default: ''
   }
 }, { timestamps: true });
 
