@@ -63,8 +63,8 @@ function App() {
                 <Navigate to="/auth" />
               } />
               <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/auth" />} />
-              <Route path="/checker" element={user?.role === 'ssgp checker' ? <CheckerDashboard /> : <Navigate to="/auth" />} />
-              <Route path="/orgpresident" element={user?.role === 'org president' ? <OrgPresidentDashboard /> : <Navigate to="/auth" />} />
+              <Route path="/checker" element={user?.role === 'ssgp checker' ? <CheckerDashboard user={user} /> : <Navigate to="/auth" />} />
+              <Route path="/orgpresident" element={user?.role === 'org president' ? <OrgPresidentDashboard user={user} /> : <Navigate to="/auth" />} />
               <Route path="/governor" element={user?.role === 'governor' ? <GovernorDashboard /> : <Navigate to="/auth" />} />
             </Routes>
           </main>

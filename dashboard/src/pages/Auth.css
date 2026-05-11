@@ -49,3 +49,25 @@
   cursor: pointer;
   font-size: 0.9rem;
 }
+
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  width: 100%;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: bold;
+}
+.toggle-password:hover {
+  color: var(--primary);
+}

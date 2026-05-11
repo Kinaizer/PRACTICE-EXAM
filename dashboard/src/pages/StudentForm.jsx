@@ -16,11 +16,12 @@ import {
 } from '@mui/material';
 
 const StudentForm = ({ user }) => {
+  const [ssgpFile, setSsgpFile] = useState(null);
   const [ssgpLink, setSsgpLink] = useState('');
-  const [track, setTrack] = useState('Engineering');
   const [status, setStatus] = useState('Not Applied'); 
   const [comment, setComment] = useState('');
   const [updatedAt, setUpdatedAt] = useState('');
+  const [reqId, setReqId] = useState(null);
 
   const fetchMyData = useCallback(async () => {
     if (!user?._id) return;
@@ -28,11 +29,16 @@ const StudentForm = ({ user }) => {
       const res = await axios.get(`/api/requests?userId=${user._id}`);
       if (res.data && res.data.length > 0) {
         const latestReq = res.data[0];
+        setReqId(latestReq._id);
         setStatus(latestReq.status);
         setSsgpLink(latestReq.ssgpLink);
-        setTrack(latestReq.track || 'Engineering');
         setComment(latestReq.comment || '');
         setUpdatedAt(latestReq.updatedAt || new Date().toISOString());
+      } else {
+        setReqId(null);
+        setStatus('Not Applied');
+        setSsgpLink('');
+        setComment('');
       }
     } catch (err) {
       console.error("Error fetching requests:", err);
@@ -45,22 +51,45 @@ const StudentForm = ({ user }) => {
 
   const handleApplyClearance = async (e) => {
     e.preventDefault();
-    if (!ssgpLink) {
-      alert("Please provide SSGP Link");
+    if (!ssgpFile) {
+      alert("Please upload your SSGP document in PDF format");
       return;
     }
+    
+    // Check if the file is a PDF
+    if (ssgpFile.type !== 'application/pdf') {
+      alert("Only PDF files are allowed for the SSGP document");
+      return;
+    }
+
     try {
-      await axios.post('/api/requests', {
-        userId: user._id, 
-        fullName: user.fullName, 
-        studentId: user?.idNumber, 
-        track, 
-        ssgpLink
+      const formData = new FormData();
+      formData.append('userId', user._id);
+      formData.append('fullName', user.fullName);
+      formData.append('studentId', user?.idNumber);
+      formData.append('track', user?.organization || 'Engineering');
+      formData.append('ssgpFile', ssgpFile);
+
+      await axios.post('/api/requests', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert("Clearance Application Submitted Successfully!");
       fetchMyData();
     } catch (err) {
       alert("Error submitting request. Please try again.");
+    }
+  };
+
+  const handleCancelClearance = async () => {
+    if (!reqId) return;
+    if (window.confirm("Are you sure you want to cancel your clearance application?")) {
+      try {
+        await axios.delete(`/api/requests/${reqId}`);
+        alert("Clearance Application Canceled.");
+        fetchMyData();
+      } catch (err) {
+        alert("Error canceling request.");
+      }
     }
   };
 
@@ -135,7 +164,7 @@ const StudentForm = ({ user }) => {
               </Typography>
               
               <Typography variant="subtitle1" sx={{ color: '#777', mb: 4, letterSpacing: '1px' }}>
-                Student ID: {user?.idNumber} | Track: {track}
+                Student ID: {user?.idNumber} | Track: {user?.organization}
               </Typography>
               
               <Typography variant="body1" sx={{ fontSize: '1.2rem', color: '#333', mb: 6, maxWidth: '600px', mx: 'auto', lineHeight: 1.8 }}>
@@ -162,39 +191,65 @@ const StudentForm = ({ user }) => {
                 </Box>
               </Box>
             </Box>
+            <Box display="flex" justifyContent="center" mt={4} className="no-print">
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={() => window.print()}
+                sx={{ py: 1, px: 4, fontWeight: 'bold' }}
+              >
+                Print / Save as PDF
+              </Button>
+            </Box>
           </Paper>
         ) : (
           <form onSubmit={handleApplyClearance}>
             <Box display="flex" flexDirection="column" gap={3} mb={4}>
 
-
-              <FormControl fullWidth disabled={status !== 'Not Applied' && status !== 'Disapproved'}>
-                <InputLabel>Organization / Track</InputLabel>
-                <Select
-                  value={track}
-                  label="Organization / Track"
-                  onChange={(e) => setTrack(e.target.value)}
-                >
-                  <MenuItem value="Engineering">Engineering</MenuItem>
-                  <MenuItem value="Architecture">Architecture</MenuItem>
-                  <MenuItem value="Information Technology">Information Technology</MenuItem>
-                </Select>
-              </FormControl>
-
-              <TextField
-                label="SSGP Google Drive Link"
-                variant="outlined"
-                fullWidth
-                value={ssgpLink}
-                onChange={(e) => setSsgpLink(e.target.value)}
-                placeholder="Enter your Google Drive link here"
-                required
-                type="url"
-                disabled={status !== 'Not Applied' && status !== 'Disapproved'}
-              />
+              <Box 
+                display="flex" 
+                flexDirection="column" 
+                alignItems="center" 
+                justifyContent="center"
+                p={3}
+                sx={{
+                  border: '2px dashed #ccc',
+                  borderRadius: 2,
+                  bgcolor: status !== 'Not Applied' && status !== 'Disapproved' ? '#f5f5f5' : '#fafafa',
+                  cursor: status !== 'Not Applied' && status !== 'Disapproved' ? 'not-allowed' : 'pointer',
+                  '&:hover': {
+                    bgcolor: status !== 'Not Applied' && status !== 'Disapproved' ? '#f5f5f5' : '#f0f0f0'
+                  }
+                }}
+              >
+                <input
+                  accept="application/pdf"
+                  style={{ display: 'none' }}
+                  id="raised-button-file"
+                  type="file"
+                  onChange={(e) => setSsgpFile(e.target.files[0])}
+                  disabled={status !== 'Not Applied' && status !== 'Disapproved'}
+                />
+                <label htmlFor="raised-button-file" style={{ width: '100%', textAlign: 'center', cursor: status !== 'Not Applied' && status !== 'Disapproved' ? 'not-allowed' : 'pointer' }}>
+                  <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#C3110C', marginBottom: '16px' }}>
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                  </svg>
+                  <Typography variant="h6" gutterBottom>
+                    {ssgpFile ? ssgpFile.name : 'Upload SSGP Document (PDF only)'}
+                  </Typography>
+                  <Button 
+                    variant="outlined" 
+                    component="span" 
+                    disabled={status !== 'Not Applied' && status !== 'Disapproved'}
+                    sx={{ mt: 1 }}
+                  >
+                    Select File
+                  </Button>
+                </label>
+              </Box>
             </Box>
 
-            <Box display="flex" justifyContent="center">
+            <Box display="flex" justifyContent="center" gap={2}>
               <Button 
                 type="submit"
                 variant="contained" 
@@ -205,6 +260,17 @@ const StudentForm = ({ user }) => {
               >
                 {status === 'Disapproved' ? 'Re-apply Clearance' : 'Apply Clearance'}
               </Button>
+              {status !== 'Not Applied' && status !== 'Governor Approved' && (
+                <Button 
+                  variant="outlined" 
+                  color="error" 
+                  size="large"
+                  onClick={handleCancelClearance}
+                  sx={{ py: 1.5, px: 4, fontSize: '1.1rem' }}
+                >
+                  Cancel Application
+                </Button>
+              )}
             </Box>
           </form>
         )}

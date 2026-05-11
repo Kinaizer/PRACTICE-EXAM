@@ -16,7 +16,8 @@ const AdminDashboard = () => {
     fullName: '',
     email: '',
     password: '',
-    role: 'ssgp checker'
+    role: 'ssgp checker',
+    organization: 'Engineering'
   });
 
   const [editAccount, setEditAccount] = useState({
@@ -26,6 +27,7 @@ const AdminDashboard = () => {
     email: '',
     password: '',
     role: 'student',
+    organization: 'Engineering',
     isVerified: false
   });
 
@@ -42,10 +44,16 @@ const AdminDashboard = () => {
 
   const handleAddAccount = async () => {
     try {
-      await axios.post('/api/admin/users', newAccount);
+      const payload = { ...newAccount };
+      if (!payload.idNumber) delete payload.idNumber;
+      if (!payload.email) delete payload.email;
+      if (!['student', 'ssgp checker', 'org president'].includes(payload.role)) {
+        delete payload.organization;
+      }
+      await axios.post('/api/admin/users', payload);
       alert("Account created successfully!");
       setOpenAddModal(false);
-      setNewAccount({ fullName: '', email: '', password: '', role: 'ssgp checker' });
+      setNewAccount({ fullName: '', email: '', password: '', role: 'ssgp checker', organization: 'Engineering' });
       fetchUsers();
     } catch (err) {
       alert("Error creating account. Email might already exist.");
@@ -60,6 +68,7 @@ const AdminDashboard = () => {
       email: user.email || '',
       password: user.password,
       role: user.role,
+      organization: user.organization || 'Engineering',
       isVerified: user.isVerified
     });
     setOpenEditModal(true);
@@ -67,14 +76,19 @@ const AdminDashboard = () => {
 
   const handleEditSubmit = async () => {
     try {
-      await axios.patch(`/api/users/${editAccount.id}`, {
+      const payload = {
         fullName: editAccount.fullName,
-        idNumber: editAccount.idNumber,
-        email: editAccount.email,
         password: editAccount.password,
         role: editAccount.role,
         isVerified: editAccount.isVerified
-      });
+      };
+      if (editAccount.idNumber) payload.idNumber = editAccount.idNumber;
+      if (editAccount.email) payload.email = editAccount.email;
+      if (['student', 'ssgp checker', 'org president'].includes(editAccount.role)) {
+        payload.organization = editAccount.organization;
+      }
+      
+      await axios.patch(`/api/users/${editAccount.id}`, payload);
       alert("User updated successfully!");
       setOpenEditModal(false);
       fetchUsers();
@@ -95,38 +109,112 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleResetUser = async (id) => {
+    if (window.confirm("Are you sure you want to reset this user's clearance applications?")) {
+      try {
+        await axios.delete(`/api/requests?userId=${id}`);
+        alert("User's applications reset successfully!");
+      } catch (err) {
+        alert("Error resetting user applications");
+      }
+    }
+  };
+
+  const handleResetAll = async () => {
+    if (window.confirm("WARNING: Are you sure you want to reset ALL clearance applications in the system?")) {
+      try {
+        await axios.delete('/api/requests');
+        alert("All applications reset successfully!");
+      } catch (err) {
+        alert("Error resetting all applications");
+      }
+    }
+  };
+
+  const students = users.filter(u => u.role === 'student');
+  const officials = users.filter(u => u.role !== 'student');
+
   return (
     <div className="container admin-container">
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <h2>Admin Dashboard</h2>
-        <Button variant="contained" color="primary" onClick={() => setOpenAddModal(true)}>
-          Add Account
-        </Button>
+        <Box>
+          <Button variant="contained" color="error" onClick={handleResetAll} style={{ marginRight: '10px' }}>
+            Reset All Applications
+          </Button>
+          <Button variant="contained" color="primary" onClick={() => setOpenAddModal(true)}>
+            Add Account
+          </Button>
+        </Box>
       </Box>
 
       <section className="admin-section">
-        <h3>All Registered Users</h3>
+        <h3>Students</h3>
         <TableContainer component={Paper} style={{ marginTop: '20px' }}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell><strong>Name (Username)</strong></TableCell>
-                <TableCell><strong>ID / Email</strong></TableCell>
+                <TableCell><strong>ID Number</strong></TableCell>
                 <TableCell><strong>Role</strong></TableCell>
                 <TableCell><strong>Verified</strong></TableCell>
                 <TableCell><strong>Actions</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.length === 0 ? (
+              {students.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">No users found.</TableCell>
+                  <TableCell colSpan={5} align="center">No students found.</TableCell>
                 </TableRow>
               ) : (
-                users.map(user => (
+                students.map(user => (
                   <TableRow key={user._id}>
                     <TableCell>{user.fullName}</TableCell>
-                    <TableCell>{user.idNumber || user.email}</TableCell>
+                    <TableCell>{user.idNumber}</TableCell>
+                    <TableCell style={{ textTransform: 'capitalize' }}>{user.role}</TableCell>
+                    <TableCell>{user.isVerified ? 'Yes' : 'No'}</TableCell>
+                    <TableCell>
+                      <Button size="small" variant="outlined" color="primary" onClick={() => handleEditOpen(user)} style={{ marginRight: '8px' }}>
+                        Edit
+                      </Button>
+                      <Button size="small" variant="outlined" color="warning" onClick={() => handleResetUser(user._id)} style={{ marginRight: '8px' }}>
+                        Reset
+                      </Button>
+                      <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteUser(user._id)}>
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </section>
+
+      <section className="admin-section" style={{ marginTop: '40px' }}>
+        <h3>System Officials</h3>
+        <TableContainer component={Paper} style={{ marginTop: '20px' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell><strong>Name (Username)</strong></TableCell>
+                <TableCell><strong>Email</strong></TableCell>
+                <TableCell><strong>Role</strong></TableCell>
+                <TableCell><strong>Verified</strong></TableCell>
+                <TableCell><strong>Actions</strong></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {officials.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">No officials found.</TableCell>
+                </TableRow>
+              ) : (
+                officials.map(user => (
+                  <TableRow key={user._id}>
+                    <TableCell>{user.fullName}</TableCell>
+                    <TableCell>{user.email}</TableCell>
                     <TableCell style={{ textTransform: 'capitalize' }}>{user.role}</TableCell>
                     <TableCell>{user.isVerified ? 'Yes' : 'No'}</TableCell>
                     <TableCell>
@@ -185,6 +273,20 @@ const AdminDashboard = () => {
                 <MenuItem value="governor">Governor</MenuItem>
               </Select>
             </FormControl>
+            {['student', 'ssgp checker', 'org president'].includes(newAccount.role) && (
+              <FormControl fullWidth>
+                <InputLabel>Organization</InputLabel>
+                <Select
+                  value={newAccount.organization}
+                  label="Organization"
+                  onChange={(e) => setNewAccount({ ...newAccount, organization: e.target.value })}
+                >
+                  <MenuItem value="Engineering">Engineering</MenuItem>
+                  <MenuItem value="Architecture">Architecture</MenuItem>
+                  <MenuItem value="Information Technology">Information Technology</MenuItem>
+                </Select>
+              </FormControl>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -248,6 +350,20 @@ const AdminDashboard = () => {
                 <MenuItem value="governor">Governor</MenuItem>
               </Select>
             </FormControl>
+            {['student', 'ssgp checker', 'org president'].includes(editAccount.role) && (
+              <FormControl fullWidth>
+                <InputLabel>Organization</InputLabel>
+                <Select
+                  value={editAccount.organization}
+                  label="Organization"
+                  onChange={(e) => setEditAccount({ ...editAccount, organization: e.target.value })}
+                >
+                  <MenuItem value="Engineering">Engineering</MenuItem>
+                  <MenuItem value="Architecture">Architecture</MenuItem>
+                  <MenuItem value="Information Technology">Information Technology</MenuItem>
+                </Select>
+              </FormControl>
+            )}
             <FormControlLabel
               control={
                 <Checkbox

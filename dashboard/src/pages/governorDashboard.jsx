@@ -70,7 +70,7 @@ const GovernorDashboard = () => {
               <TableCell><strong>Applicant Name</strong></TableCell>
               <TableCell><strong>Student ID</strong></TableCell>
               <TableCell><strong>Track</strong></TableCell>
-              <TableCell><strong>SSGP Link</strong></TableCell>
+              <TableCell><strong>SSGP File</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
               <TableCell align="center"><strong>Actions</strong></TableCell>
             </TableRow>
@@ -87,7 +87,7 @@ const GovernorDashboard = () => {
                   <TableCell>{row.studentId}</TableCell>
                   <TableCell>{row.track}</TableCell>
                   <TableCell>
-                    <a href={row.ssgpLink} target="_blank" rel="noreferrer">View Link</a>
+                    <a href={row.ssgpLink} target="_blank" rel="noreferrer">View File</a>
                   </TableCell>
                   <TableCell>
                     <Chip label={row.status} color="primary" />

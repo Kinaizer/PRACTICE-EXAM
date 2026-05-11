@@ -6,16 +6,15 @@ import {
   DialogContent, DialogActions, TextField, Chip, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 
-const CheckerDashboard = () => {
+const CheckerDashboard = ({ user }) => {
   const [requests, setRequests] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedReqId, setSelectedReqId] = useState(null);
   const [comment, setComment] = useState('');
-  const [filterOrg, setFilterOrg] = useState('All');
 
   const fetchRequests = async () => {
     try {
-      const res = await axios.get('/api/requests?status=Pending');
+      const res = await axios.get(`/api/requests?status=Pending&track=${user?.organization || ''}`);
       setRequests(res.data);
     } catch (err) {
       console.error("Error fetching requests:", err);
@@ -60,21 +59,8 @@ const CheckerDashboard = () => {
     <Container maxWidth="lg" className="checker-container" sx={{ mt: 5, mb: 5 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" component="h1" fontWeight="bold">
-          SSGP Checker Dashboard
+          SSGP Checker Dashboard ({user?.organization || 'No Organization'})
         </Typography>
-        <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
-          <InputLabel>Filter by Organization</InputLabel>
-          <Select
-            value={filterOrg}
-            label="Filter by Organization"
-            onChange={(e) => setFilterOrg(e.target.value)}
-          >
-            <MenuItem value="All">All Organizations</MenuItem>
-            <MenuItem value="Engineering">Engineering</MenuItem>
-            <MenuItem value="Architecture">Architecture</MenuItem>
-            <MenuItem value="Information Technology">Information Technology</MenuItem>
-          </Select>
-        </FormControl>
       </Box>
 
       <TableContainer component={Paper} elevation={3}>
@@ -84,24 +70,24 @@ const CheckerDashboard = () => {
               <TableCell><strong>Applicant Name</strong></TableCell>
               <TableCell><strong>Student ID</strong></TableCell>
               <TableCell><strong>Track</strong></TableCell>
-              <TableCell><strong>SSGP Link</strong></TableCell>
+              <TableCell><strong>SSGP File</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
               <TableCell align="center"><strong>Actions</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {requests.filter(req => filterOrg === 'All' || req.track === filterOrg).length === 0 ? (
+            {requests.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center">No pending applications.</TableCell>
               </TableRow>
             ) : (
-              requests.filter(req => filterOrg === 'All' || req.track === filterOrg).map((row) => (
+              requests.map((row) => (
                 <TableRow key={row._id}>
                   <TableCell>{row.fullName}</TableCell>
                   <TableCell>{row.studentId}</TableCell>
                   <TableCell>{row.track}</TableCell>
                   <TableCell>
-                    <a href={row.ssgpLink} target="_blank" rel="noreferrer">View Link</a>
+                    <a href={row.ssgpLink} target="_blank" rel="noreferrer">View File</a>
                   </TableCell>
                   <TableCell>
                     <Chip label={row.status} color="warning" />

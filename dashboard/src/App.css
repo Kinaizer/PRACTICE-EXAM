@@ -74,3 +74,22 @@ html, body {
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   border-top: 6px solid var(--color-primary);
 }
+
+/* 6. Print Styles for Certificate Download */
+@media print {
+  .navbar, .no-print {
+    display: none !important;
+  }
+  .app-viewport {
+    background: none !important;
+    padding: 0 !important;
+  }
+  .main-content {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  .MuiPaper-root {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

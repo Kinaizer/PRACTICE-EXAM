@@ -5,6 +5,7 @@ import './Auth.css';
 
 const Auth = ({ setUser }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     fullName: '',
@@ -95,14 +96,22 @@ const Auth = ({ setUser }) => {
             onChange={handleChange}
           />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-            value={form.password}
-            onChange={handleChange}
-          />
+          <div className="password-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              required
+              value={form.password}
+              onChange={handleChange}
+            />
+            <span 
+              className="toggle-password" 
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </span>
+          </div>
 
           <button type="submit" className="btn-primary">
             {isLogin ? 'Login' : 'Register'}
