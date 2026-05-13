@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import './AdminDashboard.css';
 
+
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [openAddModal, setOpenAddModal] = useState(false);
@@ -87,7 +88,7 @@ const AdminDashboard = () => {
       if (['student', 'ssgp checker', 'org president'].includes(editAccount.role)) {
         payload.organization = editAccount.organization;
       }
-      
+
       await axios.patch(`/api/users/${editAccount.id}`, payload);
       alert("User updated successfully!");
       setOpenEditModal(false);
